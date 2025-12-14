@@ -2,7 +2,7 @@
 # shellcheck disable=all
 #
 # beddu.sh - A lightweight bash framework for interactive scripts and pretty output
-# Version: v1.1.0
+# Version: v1.1.0-1-gafcb905-dirty
 #
 # Copyright © 2025 Manuele Sarfatti
 # Licensed under the MIT license
@@ -104,11 +104,22 @@ run() {
     local stdout_file stderr_file
     stdout_file=$(mktemp)
     stderr_file=$(mktemp)
+    local old_settings=$- 
+    set +e # Don't immediately exit on error
     "${cmd[@]}" >"${stdout_file}" 2>"${stderr_file}"
     local exit_code=$?
     [[ -n "${outvar_name}" ]] && outvar="$(<"$stdout_file")"
     [[ -n "${errvar_name}" ]] && errvar="$(<"$stderr_file")"
+    if [ $exit_code -ne 0 ] && [[ -z "${errvar_name}" ]]; then
+        cleaned_errvar=$(sed 's/^[^:]\{1,\}:\( line [0-9]\{1,\}:\)\{0,1\} \(.*\)/\2/' "$stderr_file")
+        line
+        throw "Command \`$(pen 245 "${cmd[*]}")\` failed with error:"
+        pen 245 "  ${cleaned_errvar}"
+        pen "  called from: $(pen 245 "${BASH_SOURCE[1]}:${BASH_LINENO[0]}") in $(pen 245 "${FUNCNAME[1]:-main}")"
+        line
+    fi
     rm -f "${stdout_file}" "${stderr_file}"
+    if [[ $old_settings == *e* ]]; then set -e; else set +e; fi
     return $exit_code
 }
 
@@ -154,6 +165,8 @@ spin() {
     _spinner_pid=$!
 }
 spop() {
+    local old_settings=$- 
+    set +e # Don't immediately exit on error
     local keep_cursor_hidden=false
     [[ "$1" == "--keep-cursor-hidden" ]] && keep_cursor_hidden=true
     if spinning; then
@@ -167,6 +180,7 @@ spop() {
         fi
         _spinner_pid=""
     fi
+    if [[ $old_settings == *e* ]]; then set -e; else set +e; fi
 }
 spinning() {
     [[ -n "${_spinner_pid}" ]]

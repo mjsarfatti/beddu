@@ -44,6 +44,9 @@ run() {
     stdout_file=$(mktemp)
     stderr_file=$(mktemp)
 
+    local old_settings=$- # Save current settings
+    set +e # Don't immediately exit on error
+
     # Execute command with redirection
     "${cmd[@]}" >"${stdout_file}" 2>"${stderr_file}"
     local exit_code=$?
@@ -54,6 +57,20 @@ run() {
     # shellcheck disable=SC2034
     [[ -n "${errvar_name}" ]] && errvar="$(<"$stderr_file")"
 
+    # If the command failed and no error variable was provided, print an error message
+    if [ $exit_code -ne 0 ] && [[ -z "${errvar_name}" ]]; then
+        cleaned_errvar=$(sed 's/^[^:]\{1,\}:\( line [0-9]\{1,\}:\)\{0,1\} \(.*\)/\2/' "$stderr_file")
+        line
+        throw "Command \`$(pen 245 "${cmd[*]}")\` failed with error:"
+        pen 245 "  ${cleaned_errvar}"
+        pen "  called from: $(pen 245 "${BASH_SOURCE[1]}:${BASH_LINENO[0]}") in $(pen 245 "${FUNCNAME[1]:-main}")"
+        line
+    fi
+
     rm -f "${stdout_file}" "${stderr_file}"
+    
+    # Restore errexit behavior
+    if [[ $old_settings == *e* ]]; then set -e; else set +e; fi
+    
     return $exit_code
 }

@@ -69,6 +69,9 @@ spin() {
 
 # Stop the spinner
 spop() {
+    local old_settings=$- # Save current settings
+    set +e # Don't immediately exit on error
+
     local keep_cursor_hidden=false
     [[ "$1" == "--keep-cursor-hidden" ]] && keep_cursor_hidden=true
 
@@ -91,6 +94,9 @@ spop() {
 
         _spinner_pid=""
     fi
+    
+    # Restore errexit behavior
+    if [[ $old_settings == *e* ]]; then set -e; else set +e; fi
 }
 
 # Check if a spinner is running
