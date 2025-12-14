@@ -2,7 +2,7 @@
 # shellcheck disable=all
 #
 # beddu.sh - A lightweight bash framework for interactive scripts and pretty output
-# Version: v1.2.1-1-g215b021-dirty
+# Version: v1.3.0
 #
 # Copyright © 2025 Manuele Sarfatti
 # Licensed under the MIT license
