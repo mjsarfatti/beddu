@@ -2,7 +2,7 @@
 # shellcheck disable=all
 #
 # beddu.sh - A lightweight bash framework for interactive scripts and pretty output
-# Version: v1.2.1
+# Version: v1.2.1-1-g215b021-dirty
 #
 # Copyright © 2025 Manuele Sarfatti
 # Licensed under the MIT license
@@ -217,7 +217,8 @@ choose() {
         pen gray "[↑↓]"
     )
     hide_cursor
-    trap 'show_cursor; return' INT TERM
+    trap 'show_cursor' EXIT TERM
+    trap "show_cursor; exit 130" INT # Exit on Ctrl+C
     pen "$prompt"
     while true; do
         local index=0
@@ -228,7 +229,7 @@ choose() {
             else
                 pen gray "${_o:-◌} ${item}"
             fi
-            ((index++))
+            ((++index))
         done
         read -s -r -n1 key
         if [[ $key == $'\e' ]]; then
@@ -237,11 +238,11 @@ choose() {
         fi
         case "$key" in
         $'\e[A' | 'k') 
-            ((current--))
+            ((--current))
             [[ $current -lt 0 ]] && current=$((count - 1))
             ;;
         $'\e[B' | 'j') 
-            ((current++))
+            ((++current))
             [[ $current -ge "$count" ]] && current=0
             ;;
         '') 
@@ -278,6 +279,7 @@ confirm() {
         pen -n blue "${_a:-❯} "
     )
     show_cursor
+    trap "exit 130" INT # Exit on Ctrl+C
     while true; do
         read -r -p "$prompt" response
         response="${response:-$default}"
@@ -312,6 +314,7 @@ request() {
         pen -n blue "${_a:-❯} "
     )
     show_cursor
+    trap "exit 130" INT # Exit on Ctrl+C
     while true; do
         read -r -p "$prompt" answer
         case "$answer" in
@@ -335,6 +338,7 @@ seek() {
         pen -n blue "${_a:-❯} "
     )
     show_cursor
+    trap "exit 130" INT # Exit on Ctrl+C
     read -r -p "$prompt" answer
     outvar="$answer"
 }

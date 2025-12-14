@@ -54,6 +54,8 @@ confirm() {
     )
 
     show_cursor
+    
+    trap "exit 130" INT # Exit on Ctrl+C
 
     # Get response
     while true; do

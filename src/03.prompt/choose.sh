@@ -34,7 +34,14 @@ choose() {
 
     # Hide cursor for cleaner UI
     hide_cursor
-    trap 'show_cursor; return' INT TERM
+    
+    # Resore cursor on:
+    # - Normal exit
+    # - Ctrl+C (with proper exit code 130)
+    # - SIGTERM
+    # - Any error that causes exit
+    trap 'show_cursor' EXIT TERM
+    trap "show_cursor; exit 130" INT # Exit on Ctrl+C
 
     # Display initial prompt
     pen "$prompt"
@@ -49,7 +56,7 @@ choose() {
             else
                 pen gray "${_o:-◌} ${item}"
             fi
-            ((index++))
+            ((++index))
         done
 
         # Read a single key press
@@ -63,11 +70,11 @@ choose() {
 
         case "$key" in
         $'\e[A' | 'k') # Up arrow or k
-            ((current--))
+            ((--current))
             [[ $current -lt 0 ]] && current=$((count - 1))
             ;;
         $'\e[B' | 'j') # Down arrow or j
-            ((current++))
+            ((++current))
             [[ $current -ge "$count" ]] && current=0
             ;;
         '') # Enter
