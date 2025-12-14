@@ -38,6 +38,7 @@ spin() {
 
     # If there is already a spinner running, stop it
     if spinning; then
+        sleep "$_frame_duration"
         spop --keep-cursor-hidden
     fi
 
