@@ -2,7 +2,7 @@
 # shellcheck disable=all
 #
 # beddu.sh - A lightweight bash framework for interactive scripts and pretty output
-# Version: v1.2.0
+# Version: v1.2.1
 #
 # Copyright © 2025 Manuele Sarfatti
 # Licensed under the MIT license
@@ -144,6 +144,7 @@ spin() {
     local message=("$@")
     local spinner="${_spinner:-⣷⣯⣟⡿⢿⣻⣽⣾}"
     if spinning; then
+        sleep "$_frame_duration"
         spop --keep-cursor-hidden
     fi
     (

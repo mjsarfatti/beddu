@@ -26,10 +26,10 @@ And you will easily be able to build things like:
 
 **Beddu** is meant to be sourced in your own script.
 
-1. Download the latest release (currently: **v1.2.0**) of `beddu.sh` to your project:
+1. Download the latest release (currently: **v1.2.1**) of `beddu.sh` to your project:
 
 ```bash
-$ curl -O https://raw.githubusercontent.com/mjsarfatti/beddu/refs/tags/v1.2.0/dist/beddu.sh
+$ curl -O https://raw.githubusercontent.com/mjsarfatti/beddu/refs/tags/v1.2.1/dist/beddu.sh
 ```
 
 2. Source the `beddu.sh` file in your script:
