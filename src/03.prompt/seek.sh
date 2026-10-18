@@ -2,8 +2,8 @@
 # shellcheck disable=SC1091
 # seek.sh - Get free text input from the user
 
-[[ $BEDDU_ASK_LOADED ]] && return
-readonly BEDDU_ASK_LOADED=true
+[[ $BEDDU_SEEK_LOADED ]] && return
+readonly BEDDU_SEEK_LOADED=true
 
 SCRIPT_DIR="$(dirname -- "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/../00.utils/_symbols.sh"
