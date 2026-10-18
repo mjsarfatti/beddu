@@ -5,6 +5,7 @@ OUTPUT = $(OUT_DIR)/beddu.sh
 SRC_DIR = src
 DEMO_DIR = demo
 README = README.md
+NOTES = $(OUT_DIR)/release-notes.md
 BASH_BIN ?= bash
 YEAR = $(shell date +%Y)
 
@@ -47,6 +48,9 @@ _release:
 		exit 1; \
 	fi; \
 	$(MAKE) build
+	@scripts/release-notes.sh "$$(git describe --tags --abbrev=0)" "$(VERSION)" > $(NOTES)
+	@echo ""
+	@cat $(NOTES)
 	@echo ""
 	@sed -i '' "s/# Version: .*/# Version: $(VERSION)/" $(OUTPUT); \
 	sed -i '' -E "s/v[0-9]+\.[0-9]+\.[0-9]+/$(VERSION)/" $(README)
@@ -56,7 +60,8 @@ _release:
 	@echo ""
 	@git push --follow-tags
 	@echo ""
-	@gh release create "$(VERSION)" --generate-notes --title "⚡ $(VERSION)" "$(OUTPUT)#beddu.sh"
+	@gh release create "$(VERSION)" --notes-file $(NOTES) --title "⚡ $(VERSION)" "$(OUTPUT)#beddu.sh"
+	@rm -f $(NOTES)
 	@echo "\n\033[32m✔︎\033[0m Release complete: \033[32m$(VERSION)\033[0m"
 
 # Get the last version tag and increment the appropriate part
@@ -77,7 +82,7 @@ release-minor:
 release-major:
 	@echo ""
 	@LAST_VERSION=$$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"); \
-	NEW_VERSION=$$(echo $$LAST_VERSION | awk -F. '{print "v"$$2+1".0.0"}'); \
+	NEW_VERSION=$$(echo $$LAST_VERSION | awk -F. '{print "v"substr($$1,2)+1".0.0"}'); \
 	echo "Bumping major version from $$LAST_VERSION to $$NEW_VERSION"; \
 	$(MAKE) _release $$NEW_VERSION
 
