@@ -114,9 +114,37 @@ spinning() {
 # Save the traps of the caller first, so that spop can restore them.
 _spin_set_traps() {
     _spin_saved_traps="$(trap -p EXIT INT TERM)"
-    trap 'spop' EXIT
-    trap 'spop; exit 130' INT
-    trap 'spop; exit 143' TERM
+    trap '_spin_on_signal EXIT "" "$?"' EXIT
+    trap '_spin_on_signal INT 130' INT
+    trap '_spin_on_signal TERM 143' TERM
+}
+
+# Stop the spinner, then run the trap of the caller for this signal.
+# If the caller has no trap for INT or TERM, exit with the given code.
+_spin_on_signal() {
+    local signal="$1" code="$2" status="$3"
+
+    spop
+
+    local caller_trap
+    caller_trap="$(trap -p "$signal")"
+    if [[ -n "$caller_trap" ]]; then
+        # "trap -- 'command' SIGNAL" becomes $1=command, $2=SIGNAL
+        eval "set -- ${caller_trap#trap -- }"
+        # Give the original $? to the caller trap. "||" prevents an exit by set -e.
+        if [[ "${status:-0}" -eq 0 ]]; then
+            eval "$1"
+        else
+            _spin_return "$status" || eval "$1"
+        fi
+    elif [[ -n "$code" ]]; then
+        exit "$code"
+    fi
+}
+
+# Set $? to the given value
+_spin_return() {
+    return "$1"
 }
 
 # Restore the traps that were set before the spinner started
