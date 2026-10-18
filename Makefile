@@ -6,7 +6,6 @@ SRC_DIR = src
 DEMO_DIR = demo
 README = README.md
 YEAR = $(shell date +%Y)
-IP = $(shell curl -s ipinfo.io/ip)
 
 # Find all direct subdirectories of src and sort them alphabetically
 SUBDIRS = $(sort $(dir $(wildcard $(SRC_DIR)/*/)))
