@@ -2,8 +2,8 @@
 # shellcheck disable=SC1091
 # request.sh - Get required text input from the user
 
-[[ $BEDDU_ASK_LOADED ]] && return
-readonly BEDDU_ASK_LOADED=true
+[[ $BEDDU_REQUEST_LOADED ]] && return
+readonly BEDDU_REQUEST_LOADED=true
 
 SCRIPT_DIR="$(dirname -- "${BASH_SOURCE[0]}")"
 source "$SCRIPT_DIR/../00.utils/_symbols.sh"
