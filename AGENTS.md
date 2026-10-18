@@ -26,6 +26,15 @@ CI (`.github/workflows/test.yml`) runs `make test` on Ubuntu and macOS for each 
 - Run the tests with `make test`. To use a different bash, set `BASH_BIN`.
 - beddu needs bash 4 or later. Do not use bash 5 features. On macOS, `/bin/bash` is bash 3.2, so use `make test BASH_BIN=$(brew --prefix)/bin/bash`.
 
+## Workflow
+
+1. Create a branch from `main`, one branch for each change (for example, `fix/...` or `feat/...`).
+2. Open a pull request to `main`. CI runs the tests on the pull request.
+3. Merge the pull request when CI passes. Use a squash merge.
+4. To release, run `make release-patch`, `make release-minor`, or `make release-major` on `main`. This step builds `dist/beddu.sh`, makes the release commit and the tag, pushes them, and creates the GitHub release. Do not make the release commit manually.
+
+Do not use a long-lived integration branch. If a change needs another change that is not merged, set the base of its pull request to the branch of the other change. When the first pull request merges, GitHub changes the base of the second pull request to `main`.
+
 ## Architecture
 
 ### Source layout and build
@@ -34,7 +43,8 @@ CI (`.github/workflows/test.yml`) runs `make test` on Ubuntu and macOS for each 
 - Each source file can run on its own. It has a load guard (`[[ $BEDDU_X_LOADED ]] && return` + `readonly BEDDU_X_LOADED=true`) and it sources its dependencies with `SCRIPT_DIR=... ; source "$SCRIPT_DIR/..."`.
 - The `$(OUTPUT)` rule in the `Makefile` concatenates the files into `dist/beddu.sh`. It removes these lines: full-line comments, `source ...`, `SCRIPT_DIR=...`, and the load guards. It also removes trailing `# words` comments that contain only letters, digits, and spaces. Thus, a dependency must come from an earlier directory (or an earlier file in the same directory) to exist in the built file. Keep `source`, `SCRIPT_DIR=`, and guard lines in these exact forms, or the build will not remove them.
 - The build adds a `BEDDU_LOADED` guard at the top of `dist/beddu.sh`. If a script sources the file two times, the second `source` does nothing.
-- `dist/beddu.sh` is committed. Rebuild it after you change `src/`. The release step writes the version into its header and into the version strings in `README.md`.
+- `dist/beddu.sh` is committed, but only the release step updates it. `make build` and `make test` rebuild it locally. Do not commit these changes. Between releases, `dist/beddu.sh` on `main` stays at the last release. Users download it from a release tag.
+- The release step writes the version into the header of `dist/beddu.sh` and into the version strings in `README.md`.
 
 ### Runtime conventions
 
