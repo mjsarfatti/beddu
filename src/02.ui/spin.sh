@@ -10,12 +10,10 @@ source "$SCRIPT_DIR/../00.utils/_symbols.sh"
 source "$SCRIPT_DIR/../00.utils/movements.sh"
 source "$SCRIPT_DIR/../01.core/pen.sh"
 
-# Make sure the cursor is shown and the spinner stopped if the script exits abnormally
-trap "spop; show_cursor" EXIT INT TERM
-
 # Module state variables
 _spinner_pid=""
 _frame_duration="${_spinner_frame_duration:-0.1}"
+_spin_saved_traps=""
 
 # Print a message with a spinner at the beginning
 #
@@ -40,6 +38,8 @@ spin() {
     if spinning; then
         sleep "$_frame_duration"
         spop --keep-cursor-hidden
+    else
+        _spin_set_traps
     fi
 
     # Run the spinner in the background
@@ -94,6 +94,11 @@ spop() {
         fi
 
         _spinner_pid=""
+
+        # Give back the traps of the caller, unless a new spinner follows
+        if [[ "$keep_cursor_hidden" == false ]]; then
+            _spin_restore_traps
+        fi
     fi
     
     # Restore errexit behavior
@@ -103,4 +108,20 @@ spop() {
 # Check if a spinner is running
 spinning() {
     [[ -n "${_spinner_pid}" ]]
+}
+
+# Stop the spinner and show the cursor if the script exits while a spinner runs.
+# Save the traps of the caller first, so that spop can restore them.
+_spin_set_traps() {
+    _spin_saved_traps="$(trap -p EXIT INT TERM)"
+    trap 'spop' EXIT
+    trap 'spop; exit 130' INT
+    trap 'spop; exit 143' TERM
+}
+
+# Restore the traps that were set before the spinner started
+_spin_restore_traps() {
+    trap - EXIT INT TERM
+    eval "$_spin_saved_traps"
+    _spin_saved_traps=""
 }
