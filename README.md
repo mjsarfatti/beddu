@@ -155,7 +155,7 @@ check "Task completed!" # We can directly `check`, `warn`, or `throw` after a `s
 
 ### Q: It doesn't work on my computer?
 
-A: **Beddu** requires bash v4+. If you are on a mac, you probably want to `brew install bash`. If your bash version checks out, please file an issue!
+A: **Beddu** requires bash v4.3+. If you are on a mac, you probably want to `brew install bash`. If your bash version checks out, please file an issue!
 
 ### Q: Can you add feature X?
 
