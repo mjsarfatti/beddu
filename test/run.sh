@@ -7,7 +7,7 @@
 #   BASH_BIN  The bash that runs each test (default: bash)
 #
 # Each test is a function with a name that starts with "test_".
-# Each test runs beddu in a new shell. Keep the tests compatible with bash 3.2.
+# Each test runs beddu in a new shell. beddu and the tests need bash 4 or later.
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 BEDDU="${1:-$ROOT/dist/beddu.sh}"
@@ -70,7 +70,7 @@ function"
 # Traps
 
 test_source_sets_no_traps() {
-    run 'source "$B"; trap -p'
+    run 'source "$B"; trap -p EXIT INT TERM'
     expect_out ""
 }
 
@@ -86,13 +86,13 @@ cleanup"
 }
 
 test_spop_removes_beddu_traps() {
-    run 'source "$B"; spin x >/dev/null; sleep 0.3; spop >/dev/null; echo "[$(trap -p)]"'
+    run 'source "$B"; spin x >/dev/null; sleep 0.3; spop >/dev/null; echo "[$(trap -p EXIT INT TERM)]"'
     expect_out "[]"
 }
 
 test_second_spin_keeps_traps_until_spop() {
     run 'source "$B"; spin a >/dev/null; sleep 0.3; spin b >/dev/null; sleep 0.3
-         echo "[$(trap -p EXIT)]" | grep -q _spin && echo set; spop >/dev/null; echo "[$(trap -p)]"'
+         echo "[$(trap -p EXIT)]" | grep -q _spin && echo set; spop >/dev/null; echo "[$(trap -p EXIT INT TERM)]"'
     expect_out "set
 []"
 }

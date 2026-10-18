@@ -7,20 +7,18 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.os }} (${{ matrix.bash }})
+    name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            bash: bash
-          # /bin/bash on macOS is bash 3.2
-          - os: macos-latest
-            bash: /bin/bash
+        os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - run: make test BASH_BIN=${{ matrix.bash }}
+      # beddu needs bash 4 or later. /bin/bash on macOS is bash 3.2.
+      - if: runner.os == 'macOS'
+        run: brew install bash
+      - run: make test
