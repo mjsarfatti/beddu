@@ -1,0 +1,39 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      # beddu needs bash 4.3 or later. /bin/bash on macOS is bash 3.2.
+      - if: runner.os == 'macOS'
+        run: brew install bash
+      - run: make test
+
+  # beddu uses namerefs (local -n), which need bash 4.3. Test this version.
+  bash-4:
+    name: bash 4.3
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - run: >-
+          docker run --rm -v "$PWD:/beddu" -w /beddu bash:4.3 sh -c
+          'apk add --no-cache make git procps >/dev/null
+          && git config --global --add safe.directory /beddu
+          && make test'

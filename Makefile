@@ -5,6 +5,7 @@ OUTPUT = $(OUT_DIR)/beddu.sh
 SRC_DIR = src
 DEMO_DIR = demo
 README = README.md
+BASH_BIN ?= bash
 YEAR = $(shell date +%Y)
 
 # Find all direct subdirectories of src and sort them alphabetically
@@ -16,7 +17,7 @@ get_dir_files = $(wildcard $(1)*.sh)
 # Build ALL_SRC_FILES by including files from each subdirectory in order
 ALL_SRC_FILES = $(foreach dir,$(SUBDIRS),$(call get_dir_files,$(dir)))
 
-.PHONY: all clean demo build _release bump-patch bump-minor bump-major
+.PHONY: all clean demo build test _release bump-patch bump-minor bump-major
 
 all: $(OUTPUT)
 
@@ -26,6 +27,10 @@ build:
 
 demo: build
 	@./$(DEMO_DIR)/demo.sh
+
+test: build
+	@echo ""
+	@BASH_BIN=$(BASH_BIN) $(BASH_BIN) test/run.sh
 
 _release:
 	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
