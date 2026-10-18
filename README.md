@@ -12,7 +12,7 @@ Your scripts will look something like this:
 
 And you will easily be able to build things like:
 
-[![asciicast](https://asciinema.org/a/E4frqYZFk3XR38UkGYs5ASnKC.svg)](https://asciinema.org/a/E4frqYZFk3XR38UkGYs5ASnKC)
+[![asciicast](https://asciinema.org/a/718805.svg)](https://asciinema.org/a/718805)
 
 ## Features
 
