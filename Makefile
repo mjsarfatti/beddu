@@ -92,6 +92,10 @@ $(OUTPUT): $(ALL_SRC_FILES)
 	@echo '# Copyright © $(YEAR) Manuele Sarfatti' >> $(OUTPUT)
 	@echo '# Licensed under the MIT license' >> $(OUTPUT)
 	@echo '# See https://github.com/mjsarfatti/beddu' >> $(OUTPUT)
+	@echo '' >> $(OUTPUT)
+	@echo '# Do not load beddu two times' >> $(OUTPUT)
+	@echo '[[ $$BEDDU_LOADED ]] && return' >> $(OUTPUT)
+	@echo 'readonly BEDDU_LOADED=true' >> $(OUTPUT)
 	@# Process each file, stripping comments, empty lines, and source lines
 	@for file in $(ALL_SRC_FILES); do \
 		echo "" >> $(OUTPUT); \
