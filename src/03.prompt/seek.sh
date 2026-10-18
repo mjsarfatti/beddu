@@ -31,8 +31,6 @@ seek() {
     )
 
     show_cursor
-    
-    trap "exit 130" INT # Exit on Ctrl+C
 
     # Get response
     read -r -p "$prompt" answer

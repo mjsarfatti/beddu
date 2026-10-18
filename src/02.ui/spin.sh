@@ -10,9 +10,6 @@ source "$SCRIPT_DIR/../00.utils/_symbols.sh"
 source "$SCRIPT_DIR/../00.utils/movements.sh"
 source "$SCRIPT_DIR/../01.core/pen.sh"
 
-# Make sure the cursor is shown and the spinner stopped if the script exits abnormally
-trap "spop; show_cursor" EXIT INT TERM
-
 # Module state variables
 _spinner_pid=""
 _frame_duration="${_spinner_frame_duration:-0.1}"
@@ -42,10 +39,12 @@ spin() {
         spop --keep-cursor-hidden
     fi
 
+    # Hide the cursor here, and not in the background shell, so that the
+    # traps are set in this shell
+    hide_cursor
+
     # Run the spinner in the background
     (
-        hide_cursor
-
         # Use a trap to catch USR1 signal for clean shutdown
         trap "exit 0" USR1
 

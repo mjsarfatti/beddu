@@ -32,16 +32,8 @@ choose() {
         pen gray "[↑↓]"
     )
 
-    # Hide cursor for cleaner UI
+    # Hide cursor for cleaner UI (it comes back when the script exits)
     hide_cursor
-    
-    # Resore cursor on:
-    # - Normal exit
-    # - Ctrl+C (with proper exit code 130)
-    # - SIGTERM
-    # - Any error that causes exit
-    trap 'show_cursor' EXIT TERM
-    trap "show_cursor; exit 130" INT # Exit on Ctrl+C
 
     # Display initial prompt
     pen "$prompt"
