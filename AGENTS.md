@@ -36,6 +36,8 @@ CI (`.github/workflows/test.yml`) runs `make test` on Ubuntu, on macOS, and with
 3. Merge the pull request when CI passes. Use a squash merge.
 4. To release, run `make release-patch`, `make release-minor`, or `make release-major` on `main`. This step builds `dist/beddu.sh`, makes the release commit and the tag, pushes them, and creates the GitHub release. Do not make the release commit manually.
 
+The squash commit title is the pull request title. It must follow Conventional Commits (`feat:`, `fix:`, `refactor:`, `perf:`, ...). The release notes come from these titles: `feat` goes to "Added", `fix` to "Fixed", `refactor` and `perf` to "Changed". All other types (`docs`, `test`, `build`, `chore`, ...) go to "Misc". Mark a breaking change with `!` after the type (`feat!:`) or with a `BREAKING CHANGE: <text>` line in the commit body. A breaking change goes to "Breaking changes" only. Write `Fixes #N` in the commit body to link a solved issue. Write `Refs #N` to link a related issue.
+
 Do not use a long-lived integration branch. If a change needs another change that is not merged, set the base of its pull request to the branch of the other change. When the first pull request merges, GitHub changes the base of the second pull request to `main`.
 
 ## Architecture
