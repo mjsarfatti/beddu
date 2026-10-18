@@ -151,6 +151,10 @@ check "Task completed!" # We can directly `check`, `warn`, or `throw` after a `s
 - `throw MESSAGE` - Show an error message (if called right after a spinner, it stops and replaces it)
 - `repen [OPTIONS] MESSAGE` - Like `pen`, but replace the previous line (it accepts all the same options)
 
+## Advanced
+
+**Beddu** hides the cursor in some of the functions. It then sets `EXIT`, `INT` and `TERM` traps that show the cursor again when your script stops (even unexpectedly). These traps keep your own traps and run them. If you set a trap _after_ **Beddu** hid the cursor, your trap replaces the **Beddu** trap, so make sure that your trap shows the cursor (`show_cursor`), or set your traps before you use **Beddu**.
+
 ## FAQ
 
 ### Q: It doesn't work on my computer?
