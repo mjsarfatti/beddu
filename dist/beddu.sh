@@ -2,11 +2,15 @@
 # shellcheck disable=all
 #
 # beddu.sh - A lightweight bash framework for interactive scripts and pretty output
-# Version: v1.3.0
+# Version: v1.3.1
 #
-# Copyright © 2025 Manuele Sarfatti
+# Copyright © 2026 Manuele Sarfatti
 # Licensed under the MIT license
 # See https://github.com/mjsarfatti/beddu
+
+# Do not load beddu two times
+[[ $BEDDU_LOADED ]] && return
+readonly BEDDU_LOADED=true
 
 readonly _q='?'
 readonly _a='❯'
@@ -44,6 +48,47 @@ show_cursor() {
 }
 hide_cursor() {
     printf "\033[?25l"
+    _beddu_set_traps
+}
+_beddu_set_traps() {
+    local signal current
+    for signal in EXIT INT TERM; do
+        current="$(trap -p "$signal")"
+        [[ "$current" == *_beddu_on_signal* ]] && continue
+        if [[ -n "$current" ]]; then
+            eval "set -- ${current#trap -- }"
+            printf -v "_beddu_trap_${signal}" '%s' "$1"
+        else
+            unset "_beddu_trap_${signal}"
+        fi
+    done
+    trap '_beddu_on_signal EXIT "$?"' EXIT
+    trap '_beddu_on_signal INT' INT
+    trap '_beddu_on_signal TERM' TERM
+}
+_beddu_on_signal() {
+    local signal="$1" status="$2"
+    local saved="_beddu_trap_${signal}"
+    if [[ "$signal" == EXIT ]]; then
+        if declare -F spinning >/dev/null && spinning; then
+            spop
+        else
+            show_cursor
+        fi
+    fi
+    if [[ -n "${!saved+set}" ]]; then
+        if [[ "${status:-0}" -eq 0 ]]; then
+            eval "${!saved}"
+        else
+            _beddu_return "$status" || eval "${!saved}"
+        fi
+    elif [[ "$signal" != EXIT ]]; then
+        trap - "$signal"
+        kill -"$signal" "$BASHPID"
+    fi
+}
+_beddu_return() {
+    return "$1"
 }
 
 pen() {
@@ -137,7 +182,6 @@ repen() {
     pen "$@"
 }
 
-trap "spop; show_cursor" EXIT INT TERM
 _spinner_pid=""
 _frame_duration="${_spinner_frame_duration:-0.1}"
 spin() {
@@ -147,8 +191,8 @@ spin() {
         sleep "$_frame_duration"
         spop --keep-cursor-hidden
     fi
+    hide_cursor
     (
-        hide_cursor
         trap "exit 0" USR1
         pen -n cyan "${spinner:0:1} "
         pen "${message[@]}"
@@ -217,8 +261,6 @@ choose() {
         pen gray "[↑↓]"
     )
     hide_cursor
-    trap 'show_cursor' EXIT TERM
-    trap "show_cursor; exit 130" INT # Exit on Ctrl+C
     pen "$prompt"
     while true; do
         local index=0
@@ -279,7 +321,6 @@ confirm() {
         pen -n blue "${_a:-❯} "
     )
     show_cursor
-    trap "exit 130" INT # Exit on Ctrl+C
     while true; do
         read -r -p "$prompt" response
         response="${response:-$default}"
@@ -314,7 +355,6 @@ request() {
         pen -n blue "${_a:-❯} "
     )
     show_cursor
-    trap "exit 130" INT # Exit on Ctrl+C
     while true; do
         read -r -p "$prompt" answer
         case "$answer" in
@@ -338,7 +378,6 @@ seek() {
         pen -n blue "${_a:-❯} "
     )
     show_cursor
-    trap "exit 130" INT # Exit on Ctrl+C
     read -r -p "$prompt" answer
     outvar="$answer"
 }
