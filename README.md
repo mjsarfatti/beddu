@@ -12,7 +12,7 @@ Your scripts will look something like this:
 
 And you will easily be able to build things like:
 
-[![asciicast](https://asciinema.org/a/718805.svg)](https://asciinema.org/a/718805)
+[![asciicast demo](./demo/demo.svg)](https://asciinema.org/a/718805)
 
 ## Features
 
@@ -129,18 +129,18 @@ check "Task completed!" # We can directly `check`, `warn`, or `throw` after a `s
 ### Text Formatting
 
 - `pen [OPTIONS] TEXT` - Output formatted text
-  - `-n` - No newline after output
-  - `bold`, `italic`, `underline` - Text styles
-  - `black`, `red`, `green`, `yellow`, `blue`, `purple`, `cyan`, `white`, `grey`, `gray` - Color names
-  - `0-255` - ANSI color codes
+    - `-n` - No newline after output
+    - `bold`, `italic`, `underline` - Text styles
+    - `black`, `red`, `green`, `yellow`, `blue`, `purple`, `cyan`, `white`, `grey`, `gray` - Color names
+    - `0-255` - ANSI color codes
 
 ### User Interaction
 
 - `seek [retval] PROMPT` - Get (optional) text input from user, saves the answer in `$retval`
 - `request [retval] PROMPT` - Like above, but doesn't accept an empty response, saves the answer in `$retval`
 - `confirm [OPTIONS] PROMPT` - Get yes/no input
-  - `--default-yes` - Set default answer to "yes" (default behavior)
-  - `--default-no` - Set default answer to "no"
+    - `--default-yes` - Set default answer to "yes" (default behavior)
+    - `--default-no` - Set default answer to "no"
 - `choose [retval] PROMPT [OPTIONS...]` - Display a selection menu, saves the answer in `$retval`
 
 ### Progress Indicators
