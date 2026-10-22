@@ -14,7 +14,11 @@ prev=$1
 new=$2
 repo=$(gh repo view --json url -q .url)
 subject_re='^([a-z]+)(\([^)]*\))?(!)?: (.+)$'
-breaking= added= fixed= changed= misc=
+breaking=
+added=
+fixed=
+changed=
+misc=
 
 issue_list() {
     grep -ioE "$1" <<<"$2" | grep -oE '#[0-9]+' | paste -sd, - | sed 's/,/, /g' || true
@@ -41,15 +45,18 @@ while IFS= read -r -d $'\x1e' record; do
         breaking+="$line"$'\n'
     else
         case $type in
-            feat) added+="$line"$'\n' ;;
-            fix) fixed+="$line"$'\n' ;;
-            refactor | perf) changed+="$line"$'\n' ;;
-            *) misc+="$line"$'\n' ;;
+        feat) added+="$line"$'\n' ;;
+        fix) fixed+="$line"$'\n' ;;
+        refactor | perf) changed+="$line"$'\n' ;;
+        *) misc+="$line"$'\n' ;;
         esac
     fi
 done < <(git log --reverse --format='%s%x1f%b%x1e' "$prev..HEAD")
 
-section() { [[ -n $2 ]] && printf '## %s\n\n%s\n' "$1" "$2"; return 0; }
+section() {
+    [[ -n $2 ]] && printf '## %s\n\n%s\n' "$1" "$2"
+    return 0
+}
 
 section "⚠️ Breaking changes" "$breaking"
 section "Added" "$added"
